@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dashboard.dart';
+// import 'api_manager.dart';
+// import 'dashboard.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -103,10 +104,7 @@ class HomePage extends StatelessWidget {
               break;
             case 1:
               // Navigate to Dashboard
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => DashboardPage()),
-              );
+                Navigator.pushReplacementNamed(context, '/dashboard');
               break;
             case 2:
               // Navigate to User
@@ -147,21 +145,6 @@ class HomePage extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-// Dummy classes for DashboardPage and UserPage
-class Dashboard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Dashboard'),
-      ),
-      body: Center(
-        child: Text('Dashboard Page'),
-      ),
     );
   }
 }

@@ -6,15 +6,17 @@ import 'register.dart';
 import 'home.dart';
 import 'api_manager.dart';
 import 'user_manager.dart';
+import 'tambah_data.dart';
+import 'dashboard.dart';
 
 void main() {
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final String baseUrl = 'http://127.0.0.1:8000/api';
-  final ApiManager apiManager =
-      ApiManager(baseUrl: 'http://127.0.0.1:8000/api');
+  final String baseUrl = 'http://192.168.43.146:8000/api';
+  final ApiManager apiManager = ApiManager(baseUrl: 'http://192.168.43.146:8000/api');
+
 
   @override
   Widget build(BuildContext context) {
@@ -32,13 +34,12 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (context) => SplashScreen(),
-          '/login': (context) =>
-              LoginPage(apiManager: ApiManager(baseUrl: baseUrl)),
-          '/register': (context) =>
-              RegisterPage(apiManager: ApiManager(baseUrl: baseUrl)),
+          '/login': (context) => LoginPage(apiManager: ApiManager(baseUrl: baseUrl)),
+          '/register': (context) => RegisterPage(apiManager: ApiManager(baseUrl: baseUrl)),
           '/home': (context) => HomePage(),
-          // '/addkost': (context) => AddKostPage(),
-          // '/listkost': (context) => ListKostPage(),
+          '/tambah_data': (context) => TambahDataPage(apiManager: ApiManager(baseUrl: baseUrl)),
+          '/dashboard': (context) => DashboardPage(apiManager: ApiManager(baseUrl: baseUrl)),
+          '/user': (context) => UserPage(),
         },
       ),
     );

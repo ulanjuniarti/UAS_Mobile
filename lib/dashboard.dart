@@ -1,21 +1,13 @@
 import 'package:flutter/material.dart';
-import 'nailart.dart';
-import 'makeup.dart';
-import 'rambut.dart';
-import 'home.dart';
-
-void main() => runApp(MyApp());
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: DashboardPage(),
-    );
-  }
-}
+import 'package:provider/provider.dart';
+import 'api_manager.dart';
+import 'detail_tips.dart';
 
 class DashboardPage extends StatefulWidget {
+  final ApiManager apiManager;
+
+  DashboardPage({required this.apiManager});
+
   @override
   _DashboardPageState createState() => _DashboardPageState();
 }
@@ -25,6 +17,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    final apiManager = Provider.of<ApiManager>(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromARGB(255, 235, 215, 198),
@@ -36,49 +30,83 @@ class _DashboardPageState extends State<DashboardPage> {
           children: [
             SizedBox(height: 16.0),
             Expanded(
-              child: ListView(
-                physics: BouncingScrollPhysics(),
-                children: [
-                  CardColumn(
-                    imageUrl:
-                        'https://i.pinimg.com/564x/01/19/23/011923be40611f4ff282f5abfc88114c.jpg',
-                    description:
-                        'Anti Gagal, Tips Mudah Membuat Nail Art Sendiri di Rumah',
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => NailArtPage()),
-                      );
-                    },
-                  ),
-                  SizedBox(height: 16.0),
-                  CardColumn(
-                    imageUrl:
-                        'https://meltonlearning.com.au/wp-content/uploads/2020/12/GettyImages-167157698.jpg',
-                    description: 'Tips Menjaga Makeup Tahan Lama Seharian',
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => Makeup()),
-                      );
-                    },
-                  ),
-                  SizedBox(height: 16.0),
-                  CardColumn(
-                    imageUrl:
-                        'https://image.popbela.com/content-images/post/20211015/1-5135fcce64dcbcf3c8e96cc2b392ee43.jpg?width=1600&format=webp&w=1600',
-                    description:
-                        'Tips dan Cara Mewarnai Rambut Sendiri di Rumah',
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => WarnaRambut()),
-                      );
-                    },
-                  ),
-                  SizedBox(height: 16.0),
-                  // ... tambahkan card lainnya sesuai kebutuhan
-                ],
+              child: FutureBuilder(
+                future: apiManager.fetchData(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else {
+                    final tipsData = snapshot.data;
+
+                    return ListView.builder(
+                      physics: BouncingScrollPhysics(),
+                      itemCount: tipsData?.length ?? 0,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          elevation: 3.0,
+                          color: Colors.blueGrey[100],
+                          child: ListTile(
+                            leading: Image.network(
+                              "http://192.168.43.146:8000/storage/images/${tipsData?[index]['foto']}" ??
+                                  '',
+                              fit: BoxFit.cover,
+                              width: 80.0,
+                              height: 80.0,
+                            ),
+                            title: Text(tipsData?[index]['nama'] ?? ''),
+                            trailing: IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () async {
+                                bool deleteConfirmed = await showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text('Konfirmasi Penghapusan'),
+                                    content: Text(
+                                        'Apakah Anda yakin ingin menghapus tip ini?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(false),
+                                        child: Text('Batal'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(true),
+                                        child: Text('Hapus'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+
+                                if (deleteConfirmed ?? false) {
+                                  try {
+                                    await apiManager
+                                        .deleteTip(tipsData?[index]['id']);
+                                    setState(() {});
+                                  } catch (e) {
+                                    print('Error deleting tip: $e');
+                                  }
+                                }
+                              },
+                            ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailTipsPage(
+                                    data: tipsData?[index],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  }
+                },
               ),
             ),
           ],
@@ -89,29 +117,15 @@ class _DashboardPageState extends State<DashboardPage> {
         onTap: (index) {
           setState(() {
             _currentIndex = index;
-            // Handle navigation to different pages based on index
             switch (index) {
               case 0:
-                // Navigate to Home (DashboardPage)
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomePage()),
-                );
+                Navigator.pushReplacementNamed(context, '/home');
                 break;
               case 1:
-                // Navigate to Tambah Data
-                // Replace the print statement with your navigation logic
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomePage()),
-                );
+                Navigator.pushReplacementNamed(context, '/tambah_data');
                 break;
               case 2:
-                // Navigate to User
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => UserPage()),
-                );
+                Navigator.pushReplacementNamed(context, '/user');
                 break;
             }
           });
@@ -130,62 +144,6 @@ class _DashboardPageState extends State<DashboardPage> {
             label: 'User',
           ),
         ],
-      ),
-    );
-  }
-}
-
-class CardColumn extends StatelessWidget {
-  final String imageUrl;
-  final String description;
-  final VoidCallback? onPressed;
-
-  CardColumn({
-    required this.imageUrl,
-    required this.description,
-    this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Card(
-        elevation: 3.0,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Image.network(
-                imageUrl,
-                height: 200.0,
-                width: 350.0,
-                fit: BoxFit.cover,
-              ),
-              SizedBox(height: 16.0),
-              Text(
-                description,
-                style: TextStyle(fontSize: 16.0),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class UserPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('User'),
-      ),
-      body: Center(
-        child: Text('User Page'),
       ),
     );
   }
