@@ -10,30 +10,30 @@ class ApiManager {
   ApiManager({required this.baseUrl});
 
   Future<String?> addTip(String nama, String deskripsi, File foto) async {
-  try {
-    final token = await getToken();
+    try {
+      final token = await getToken();
 
-    var request = http.MultipartRequest('POST', Uri.parse('$baseUrl/store-foto'));
-    request.headers['Authorization'] = 'Bearer $token';
-    request.fields['nama'] = nama;
-    request.fields['deskripsi'] = deskripsi;
-    request.files.add(await http.MultipartFile.fromPath('foto', foto.path));
+      var request =
+          http.MultipartRequest('POST', Uri.parse('$baseUrl/store-foto'));
+      request.headers['Authorization'] = 'Bearer $token';
+      request.fields['nama'] = nama;
+      request.fields['deskripsi'] = deskripsi;
+      request.files.add(await http.MultipartFile.fromPath('foto', foto.path));
 
-    var response = await request.send();
+      var response = await request.send();
 
-    if (response.statusCode == 201) {
-      final jsonResponse = jsonDecode(await response.stream.bytesToString());
-      final addedTipId = jsonResponse['id'].toString();
-      return addedTipId;
-    } else {
-      throw Exception('Failed Status Code: ${response.statusCode}');
+      if (response.statusCode == 201) {
+        final jsonResponse = jsonDecode(await response.stream.bytesToString());
+        final addedTipId = jsonResponse['id'].toString();
+        return addedTipId;
+      } else {
+        throw Exception('Failed Status Code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error in addTip: $e');
+      throw e;
     }
-  } catch (e) {
-    print('Error in addTip: $e');
-    throw e;
   }
-}
-
 
   Future<List<Map<String, dynamic>>> fetchData() async {
     try {
@@ -56,30 +56,57 @@ class ApiManager {
     }
   }
 
-  Future<void> updateTip(
+  Future<String?> UpdateWithFoto(
+      String nama, String deskripsi, String id, File foto) async {
+    try {
+      final token = await getToken();
+
+      var request =
+          http.MultipartRequest('POST', Uri.parse('$baseUrl/update-foto'));
+      request.headers['Authorization'] = 'Bearer $token';
+      request.fields['id'] = id;
+      request.fields['nama'] = nama;
+      request.fields['deskripsi'] = deskripsi;
+      request.files.add(await http.MultipartFile.fromPath('foto', foto.path));
+
+      var response = await request.send();
+
+      if (response.statusCode == 201) {
+        final jsonResponse = jsonDecode(await response.stream.bytesToString());
+        final addedTipId = jsonResponse['id'].toString();
+        return addedTipId;
+      } else {
+        throw Exception('Failed Status Code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error in addTip: $e');
+      throw e;
+    }
+  }
+
+  Future<void> UpdateWithoutFoto(
     String id,
     String nama,
     String deskripsi,
-    String foto,
   ) async {
     try {
       final token = await getToken();
-      final response = await http.put(
-        Uri.parse('$baseUrl/tips/$id'),
+      final response = await http.post(
+        Uri.parse('$baseUrl/update-foto'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
         body: jsonEncode({
+          'id': id,
           'nama': nama,
           'deskripsi': deskripsi,
-          'foto': foto,
         }),
       );
 
-      if (response.statusCode != 200) {
+      if (response.statusCode != 201) {
         throw Exception(
-            'Failed to update tip. Status Code: ${response.statusCode}');
+            'Failed to update tip. Status Code: ${response.statusCode}, ${response.body}');
       }
     } catch (e) {
       print('Error in updateTip: $e');
@@ -88,24 +115,24 @@ class ApiManager {
   }
 
   Future<void> deleteTip(int id) async {
-  try {
-    final token = await getToken();
-    final response = await http.delete(
-      Uri.parse('$baseUrl/tips/$id'),
-      headers: {'Authorization': 'Bearer $token'},
-    );
+    try {
+      final token = await getToken();
+      final response = await http.delete(
+        Uri.parse('$baseUrl/tips/$id'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
 
-    print('Respon Delete: ${response.statusCode} - ${response.body}');
+      print('Respon Delete: ${response.statusCode} - ${response.body}');
 
-    if (response.statusCode != 200) {
-      throw Exception(
-          'Gagal menghapus tip. Kode Status: ${response.statusCode}');
+      if (response.statusCode != 200) {
+        throw Exception(
+            'Gagal menghapus tip. Kode Status: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error dalam deleteTip: $e');
+      throw e;
     }
-  } catch (e) {
-    print('Error dalam deleteTip: $e');
-    throw e;
   }
-}
 
   Future<String> getToken() async {
     final token = await storage.read(key: 'kode_rahassia');

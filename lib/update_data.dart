@@ -1,34 +1,36 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'api_manager.dart';
 import 'package:file_picker/file_picker.dart';
+import 'dart:io';
+import 'api_manager.dart';
 
-class TambahDataPage extends StatefulWidget {
+class UpdateDataPage extends StatefulWidget {
   final ApiManager apiManager;
+  final Map<String, dynamic>? existingData;
 
-  TambahDataPage({required this.apiManager});
+  UpdateDataPage({required this.apiManager, required this.existingData});
 
   @override
-  _TambahDataPageState createState() => _TambahDataPageState();
+  _UpdateDataPageState createState() => _UpdateDataPageState();
 }
 
-class _TambahDataPageState extends State<TambahDataPage> {
+class _UpdateDataPageState extends State<UpdateDataPage> {
   final TextEditingController _namaController = TextEditingController();
   final TextEditingController _deskripsiController = TextEditingController();
   File? _selectedFile;
 
   @override
+  void initState() {
+    super.initState();
+    // Populate the text controllers with existing data
+    _namaController.text = widget.existingData?['nama'] ?? '';
+    _deskripsiController.text = widget.existingData?['deskripsi'] ?? '';
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tambah Data'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pushReplacementNamed(context, '/dashboard');
-          },
-        ),
+        title: Text('Update Data'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -70,7 +72,13 @@ class _TambahDataPageState extends State<TambahDataPage> {
                       child: Center(
                         child: _selectedFile != null
                             ? Image.file(_selectedFile!, fit: BoxFit.cover)
-                            : Text('Pilih Foto'),
+                            : Image.network(
+                                "http://192.168.43.146:8000/storage/images/${widget.existingData?['foto']}" ??
+                                    '',
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: double.infinity,
+                              ),
                       ),
                     ),
                   ),
@@ -85,32 +93,39 @@ class _TambahDataPageState extends State<TambahDataPage> {
 
                 try {
                   if (_selectedFile != null) {
-                    await widget.apiManager
-                        .addTip(nama, deskripsi, _selectedFile!);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Data berhasil ditambahkan'),
-                      ),
+                    // Update the existing data with a new photo
+                    await widget.apiManager.UpdateWithFoto(
+                      nama,
+                      deskripsi,
+                      widget.existingData!['id'].toString(),
+                      _selectedFile!,
                     );
-
-                    // Arahkan ke halaman Dashboard setelah data ditambahkan
-                    Navigator.pushReplacementNamed(context, '/dashboard');
                   } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Pilih file foto terlebih dahulu'),
-                      ),
+                    // Update the existing data without changing the photo
+                    await widget.apiManager.UpdateWithoutFoto(
+                      widget.existingData!['id'].toString(),
+                      nama,
+                      deskripsi,
                     );
                   }
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Data berhasil diperbarui'),
+                    ),
+                  );
+
+                  // Navigate back to the dashboard after updating data
+                  Navigator.pushReplacementNamed(context, '/dashboard');
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Gagal menambahkan data: $e'),
+                      content: Text('Gagal memperbarui data: $e'),
                     ),
                   );
                 }
               },
-              child: Text('Tambah Data'),
+              child: Text('Perbarui Data'),
             ),
           ],
         ),

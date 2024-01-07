@@ -15,8 +15,8 @@ void main() {
 
 class MyApp extends StatelessWidget {
   final String baseUrl = 'http://192.168.43.146:8000/api';
-  final ApiManager apiManager = ApiManager(baseUrl: 'http://192.168.43.146:8000/api');
-
+  final ApiManager apiManager =
+      ApiManager(baseUrl: 'http://192.168.43.146:8000/api');
 
   @override
   Widget build(BuildContext context) {
@@ -34,11 +34,15 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (context) => SplashScreen(),
-          '/login': (context) => LoginPage(apiManager: ApiManager(baseUrl: baseUrl)),
-          '/register': (context) => RegisterPage(apiManager: ApiManager(baseUrl: baseUrl)),
+          '/login': (context) =>
+              LoginPage(apiManager: ApiManager(baseUrl: baseUrl)),
+          '/register': (context) =>
+              RegisterPage(apiManager: ApiManager(baseUrl: baseUrl)),
           '/home': (context) => HomePage(),
-          '/tambah_data': (context) => TambahDataPage(apiManager: ApiManager(baseUrl: baseUrl)),
-          '/dashboard': (context) => DashboardPage(apiManager: ApiManager(baseUrl: baseUrl)),
+          '/tambah_data': (context) =>
+              TambahDataPage(apiManager: ApiManager(baseUrl: baseUrl)),
+          '/dashboard': (context) =>
+              DashboardPage(apiManager: ApiManager(baseUrl: baseUrl)),
           '/user': (context) => UserPage(),
         },
       ),

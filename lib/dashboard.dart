@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'api_manager.dart';
 import 'detail_tips.dart';
+import 'update_data.dart'; // Import the UpdateDataPage
 
 class DashboardPage extends StatefulWidget {
   final ApiManager apiManager;
@@ -21,7 +22,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 235, 215, 198),
+        backgroundColor: Color.fromARGB(255, 231, 196, 193),
         title: Text('Lunar Beauty'),
       ),
       body: Padding(
@@ -34,7 +35,9 @@ class _DashboardPageState extends State<DashboardPage> {
                 future: apiManager.fetchData(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
                   } else if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   } else {
@@ -46,61 +49,91 @@ class _DashboardPageState extends State<DashboardPage> {
                       itemBuilder: (context, index) {
                         return Card(
                           elevation: 3.0,
-                          color: Colors.blueGrey[100],
-                          child: ListTile(
-                            leading: Image.network(
-                              "http://192.168.43.146:8000/storage/images/${tipsData?[index]['foto']}" ??
-                                  '',
-                              fit: BoxFit.cover,
-                              width: 80.0,
-                              height: 80.0,
-                            ),
-                            title: Text(tipsData?[index]['nama'] ?? ''),
-                            trailing: IconButton(
-                              icon: Icon(Icons.delete),
-                              onPressed: () async {
-                                bool deleteConfirmed = await showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: Text('Konfirmasi Penghapusan'),
-                                    content: Text(
-                                        'Apakah Anda yakin ingin menghapus tip ini?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.of(context).pop(false),
-                                        child: Text('Batal'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.of(context).pop(true),
-                                        child: Text('Hapus'),
-                                      ),
-                                    ],
-                                  ),
-                                );
-
-                                if (deleteConfirmed ?? false) {
-                                  try {
-                                    await apiManager
-                                        .deleteTip(tipsData?[index]['id']);
-                                    setState(() {});
-                                  } catch (e) {
-                                    print('Error deleting tip: $e');
-                                  }
-                                }
-                              },
-                            ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DetailTipsPage(
-                                    data: tipsData?[index],
-                                  ),
+                          color:  Color.fromARGB(255, 231, 196, 193),
+                          child: Column(
+                            children: [
+                              Image.network(
+                                "http://192.168.43.146:8000/storage/images/${tipsData?[index]['foto']}" ??
+                                    '',
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: 150.0,
+                              ),
+                              ListTile(
+                                title: Text(
+                                  tipsData?[index]['nama'] ?? '',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
-                              );
-                            },
+                                subtitle: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(Icons.edit),
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                UpdateDataPage(
+                                              apiManager: widget.apiManager,
+                                              existingData: tipsData?[index],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: Icon(Icons.delete),
+                                      onPressed: () async {
+                                        bool deleteConfirmed = await showDialog(
+                                          context: context,
+                                          builder: (context) => AlertDialog(
+                                            title:
+                                                Text('Konfirmasi Penghapusan'),
+                                            content: Text(
+                                                'Apakah Anda yakin ingin menghapus tip ini?'),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.of(context)
+                                                        .pop(false),
+                                                child: Text('Batal'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.of(context)
+                                                        .pop(true),
+                                                child: Text('Hapus'),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+
+                                        if (deleteConfirmed ?? false) {
+                                          try {
+                                            await apiManager.deleteTip(
+                                                tipsData?[index]['id']);
+                                            setState(() {});
+                                          } catch (e) {
+                                            print('Error deleting tip: $e');
+                                          }
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => DetailTipsPage(
+                                        data: tipsData?[index],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
                           ),
                         );
                       },
