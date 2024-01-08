@@ -23,7 +23,7 @@ class _DashboardPageState extends State<DashboardPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromARGB(255, 231, 196, 193),
-        title: Text('Lunar Beauty'),
+        title: Text('Lunar Beauty & Health'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -49,7 +49,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       itemBuilder: (context, index) {
                         return Card(
                           elevation: 3.0,
-                          color:  Color.fromARGB(255, 231, 196, 193),
+                          color: Color.fromARGB(255, 231, 196, 193),
                           child: Column(
                             children: [
                               Image.network(

@@ -30,89 +30,94 @@ class _TambahDataPageState extends State<TambahDataPage> {
           },
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: _namaController,
-              decoration: InputDecoration(labelText: 'Nama'),
-            ),
-            SizedBox(height: 16.0),
-            TextField(
-              controller: _deskripsiController,
-              decoration: InputDecoration(labelText: 'Deskripsi'),
-            ),
-            SizedBox(height: 16.0),
-            Row(
-              children: [
-                Expanded(
-                  child: InkWell(
-                    onTap: () async {
-                      FilePickerResult? result =
-                          await FilePicker.platform.pickFiles(
-                        type: FileType.image,
-                        allowMultiple: false,
-                      );
+      body: SingleChildScrollView(
+        // Tambahkan widget SingleChildScrollView di sini
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                controller: _namaController,
+                decoration: InputDecoration(labelText: 'Judul'),
+              ),
+              SizedBox(height: 16.0),
+              TextField(
+                controller: _deskripsiController,
+                decoration: InputDecoration(labelText: 'Deskripsi'),
+                maxLines:
+                    null, // Set maxLines ke null agar dapat mengganti baris dengan Enter
+              ),
+              SizedBox(height: 16.0),
+              Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () async {
+                        FilePickerResult? result =
+                            await FilePicker.platform.pickFiles(
+                          type: FileType.image,
+                          allowMultiple: false,
+                        );
 
-                      if (result != null) {
-                        setState(() {
-                          _selectedFile = File(result.files.single.path!);
-                        });
-                      }
-                    },
-                    child: Container(
-                      height: 80.0,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                      ),
-                      child: Center(
-                        child: _selectedFile != null
-                            ? Image.file(_selectedFile!, fit: BoxFit.cover)
-                            : Text('Pilih Foto'),
+                        if (result != null) {
+                          setState(() {
+                            _selectedFile = File(result.files.single.path!);
+                          });
+                        }
+                      },
+                      child: Container(
+                        height: 80.0,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                        ),
+                        child: Center(
+                          child: _selectedFile != null
+                              ? Image.file(_selectedFile!, fit: BoxFit.cover)
+                              : Text('Pilih Foto'),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () async {
-                final nama = _namaController.text;
-                final deskripsi = _deskripsiController.text;
+                ],
+              ),
+              SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: () async {
+                  final nama = _namaController.text;
+                  final deskripsi = _deskripsiController.text;
 
-                try {
-                  if (_selectedFile != null) {
-                    await widget.apiManager
-                        .addTip(nama, deskripsi, _selectedFile!);
+                  try {
+                    if (_selectedFile != null) {
+                      await widget.apiManager
+                          .addTip(nama, deskripsi, _selectedFile!);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Data berhasil ditambahkan'),
+                        ),
+                      );
+
+                      // Arahkan ke halaman Dashboard setelah data ditambahkan
+                      Navigator.pushReplacementNamed(context, '/dashboard');
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Pilih file foto terlebih dahulu'),
+                        ),
+                      );
+                    }
+                  } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Data berhasil ditambahkan'),
-                      ),
-                    );
-
-                    // Arahkan ke halaman Dashboard setelah data ditambahkan
-                    Navigator.pushReplacementNamed(context, '/dashboard');
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Pilih file foto terlebih dahulu'),
+                        content: Text('Gagal menambahkan data: $e'),
                       ),
                     );
                   }
-                } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Gagal menambahkan data: $e'),
-                    ),
-                  );
-                }
-              },
-              child: Text('Tambah Data'),
-            ),
-          ],
+                },
+                child: Text('Tambah Data'),
+              ),
+            ],
+          ),
         ),
       ),
     );
