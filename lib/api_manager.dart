@@ -181,7 +181,7 @@ class ApiManager {
     }
   }
 
-  Future<String?> authenticate(String email, String password) async {
+  Future<dynamic?> authenticate(String email, String password) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/login'),
@@ -191,10 +191,14 @@ class ApiManager {
       if (response.statusCode == 200) {
         final jsonResponse = jsonDecode(response.body);
         final token = jsonResponse['token'];
+        final role = jsonResponse['role'];
 
         await storage.write(key: 'kode_rahassia', value: token);
 
-        return token;
+        return {
+          'token': token,
+          'role': role,
+        };
       } else {
         throw Exception(
             'Failed to authenticate. Status Code: ${response.statusCode}');

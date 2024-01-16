@@ -7,6 +7,7 @@ import 'home.dart';
 import 'api_manager.dart';
 import 'user_manager.dart';
 import 'tambah_data.dart';
+import 'tips_user.dart';
 import 'dashboard.dart';
 
 void main() {
@@ -43,6 +44,8 @@ class MyApp extends StatelessWidget {
               TambahDataPage(apiManager: ApiManager(baseUrl: baseUrl)),
           '/dashboard': (context) =>
               DashboardPage(apiManager: ApiManager(baseUrl: baseUrl)),
+          '/tips_user': (context) =>
+              TipsUserPage(apiManager: ApiManager(baseUrl: baseUrl)),
           '/user': (context) => UserPage(),
         },
       ),

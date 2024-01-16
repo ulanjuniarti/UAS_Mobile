@@ -91,7 +91,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                             title:
                                                 Text('Konfirmasi Penghapusan'),
                                             content: Text(
-                                                'Apakah Anda yakin ingin menghapus tip ini?'),
+                                                'Apakah Anda yakin ingin menghapus data ini?'),
                                             actions: [
                                               TextButton(
                                                 onPressed: () =>
@@ -166,7 +166,7 @@ class _DashboardPageState extends State<DashboardPage> {
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Home',
+            label: 'Dashboard',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.add),
@@ -174,7 +174,7 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: 'User',
+            label: 'Profil',
           ),
         ],
       ),

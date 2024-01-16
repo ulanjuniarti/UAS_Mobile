@@ -28,13 +28,28 @@ class _RegisterPageState extends State<RegisterPage> {
 
     try {
       await apiManager.register(name, email, password);
-      // Show a toast on successful registration
+
+      // Show a success message using SnackBar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Registration successful'),
+          duration: Duration(seconds: 2),
+        ),
+      );
 
       Navigator.pushReplacementNamed(context, '/login');
       // Handle successful registration
     } catch (e) {
       print('Registration failed. Error: $e');
-      // Handle registration failure
+
+      // Check if the error is due to an existing email in the database
+      // Show an error message using SnackBar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Email already exists. Please use a different email.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
     }
   }
 
@@ -64,7 +79,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   TextFormField(
                     controller: _usernameController,
                     decoration: InputDecoration(
-                      labelText: 'Username',
+                      labelText: 'Nama',
                       prefixIcon: Icon(Icons.person),
                       border: OutlineInputBorder(),
                     ),
@@ -111,9 +126,6 @@ class _RegisterPageState extends State<RegisterPage> {
                   ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState?.validate() ?? false) {
-                        // Aksi saat formulir valid
-                        // Ganti dengan aksi Anda saat klik Register
-                        // Setelah berhasil mendaftar, navigasi ke halaman login
                         _register(context);
                       }
                     },
@@ -141,4 +153,3 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 }
-

@@ -22,7 +22,8 @@ class DetailTipsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Detail Tips'),
+        backgroundColor: Color.fromARGB(255, 231, 196, 193),
+        title: Text('Lunar Beauty & Health'),
       ),
       body: SingleChildScrollView(
         // Tambahkan widget SingleChildScrollView di sini
